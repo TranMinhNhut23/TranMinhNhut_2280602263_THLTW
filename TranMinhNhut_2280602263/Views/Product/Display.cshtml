@@ -1,0 +1,129 @@
+﻿@model TranMinhNhut_2280602263.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="product-detail-container">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="product-image-container">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="product-image" />
+                }
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="product-info">
+                <h1 class="product-title">@Model.Name</h1>
+                <div class="category-badge">
+                    <i class="bi bi-tag"></i> @(Model.Category?.Name ?? "Không có danh mục")
+                </div>
+                <div class="price-tag">
+                    <span class="currency">VND</span>
+                    <span class="amount">@Model.Price.ToString("#,##0")</span>
+                </div>
+                <div class="description">
+                    <h3>Mô tả sản phẩm</h3>
+                    <p>@Model.Description</p>
+                </div>
+                <div class="action-buttons">
+                    <a asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-detail-container {
+        padding: 40px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        margin: 30px auto;
+        max-width: 1200px;
+    }
+
+    .product-image-container {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .product-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    .product-title {
+        font-size: 2.5rem;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 8px 15px;
+        background: #e9ecef;
+        border-radius: 20px;
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .price-tag {
+        background: #f8f9fa;
+        padding: 15px 25px;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+    .currency {
+        color: #6c757d;
+        margin-right: 10px;
+    }
+
+    .amount {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .description {
+        margin: 30px 0;
+    }
+
+        .description h3 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .description p {
+            color: #6c757d;
+            line-height: 1.8;
+        }
+
+    .action-buttons {
+        margin-top: 30px;
+    }
+
+        .action-buttons .btn {
+            margin-right: 10px;
+            padding: 10px 20px;
+        }
+</style>

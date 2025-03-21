@@ -1,0 +1,35 @@
+﻿<!-- _EmployeeLayout.cshtml -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"] - Employee Dashboard</title>
+    <!-- Employee specific styles -->
+    <link href="~/css/employee.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="employee-layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>Employee Dashboard</h3>
+            </div>
+            <ul class="nav-items">
+                <li>
+                    <a asp-controller="Product" asp-action="Index">
+                        <i class="bi bi-box"></i> Quản lý sản phẩm
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Order" asp-action="Index">
+                        <i class="bi bi-cart"></i> Xử lý đơn hàng
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <main class="content">
+            @RenderBody()
+        </main>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

@@ -1,0 +1,139 @@
+﻿@model IEnumerable<TranMinhNhut_2280602263.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    Layout = User.IsInRole("Admin") ? "_AdminLayout" : "_EmployeeLayout";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="card-title mb-1">
+                        <i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm
+                    </h2>
+                    <p class="text-muted">Quản lý danh sách sản phẩm</p>
+                </div>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-success">
+                        <i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm mới
+                    </a>
+                }
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex gap-2">
+                        <input type="text" name="searchQuery" class="form-control"
+                               placeholder="Tìm kiếm sản phẩm..." value="@ViewBag.SearchQuery">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group">
+                        <a asp-action="Index" asp-route-sortOrder="name_asc" class="btn btn-outline-secondary">
+                            <i class="bi bi-sort-alpha-down"></i>
+                        </a>
+                        <a asp-action="Index" asp-route-sortOrder="price_desc" class="btn btn-outline-secondary">
+                            <i class="bi bi-sort-numeric-down"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row g-4">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100">
+                            <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name"
+                                 style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Name</h5>
+                                <p class="card-text text-muted">@item.Description</p>
+                                <p class="card-text">
+                                    <strong>Giá: </strong>@item.Price.ToString("#,##0") VND
+                                </p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-tag me-1"></i>@item.Category?.Name
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-end gap-2">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>Sửa
+                                        </a>
+                                        <button onclick="confirmDelete(@item.Id, '@item.Name')"
+                                                class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash me-1"></i>Xóa
+                                        </button>
+                                    }
+                                    else if (User.IsInRole("Employee"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>Cập nhật
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+@if (User.IsInRole("Admin"))
+{
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn xóa sản phẩm "<span id="productName"></span>"?</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="productId" name="id" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').textContent = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Auto dismiss alerts
+        setTimeout(function () {
+            $('.alert').alert('close');
+        }, 3000);
+    </script>
+}
+

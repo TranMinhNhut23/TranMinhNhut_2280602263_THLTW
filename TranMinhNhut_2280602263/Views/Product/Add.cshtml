@@ -1,0 +1,210 @@
+﻿@model TranMinhNhut_2280602263.Models.Product
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Thêm Sản Phẩm Mới";
+}
+
+<style>
+    .product-form-container {
+        max-width: 900px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+    textarea.form-control {
+        min-height: 120px;
+    }
+
+    .image-preview {
+        max-width: 200px;
+        margin-top: 10px;
+        border-radius: 5px;
+        display: none;
+    }
+
+    .btn-container {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 10px 24px;
+        font-weight: 600;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .file-upload {
+        position: relative;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+
+        .file-upload input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+    .upload-label {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border: 2px dashed #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+        .upload-label:hover {
+            border-color: #3498db;
+            background: #f1f8fe;
+        }
+</style>
+
+<div class="product-form-container">
+    <h2 class="form-title">
+        <i class="bi bi-plus-circle me-2"></i>Thêm Sản Phẩm Mới
+    </h2>
+
+    <form asp-action="Add" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Name">Tên sản phẩm</label>
+                    <input asp-for="Name" class="form-control" placeholder="Nhập tên sản phẩm" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Price">Giá sản phẩm</label>
+                    <div class="input-group">
+                        <input asp-for="Price" class="form-control" placeholder="Nhập giá sản phẩm" />
+                        <span class="input-group-text">VNĐ</span>
+                    </div>
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CategoryId">Danh mục</label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Description">Mô tả sản phẩm</label>
+                    <textarea asp-for="Description" class="form-control"
+                              placeholder="Nhập mô tả chi tiết về sản phẩm"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Hình ảnh sản phẩm</label>
+                    <div class="file-upload">
+                        <label class="upload-label" for="imageInput">
+                            <i class="bi bi-cloud-upload me-2"></i>Chọn hình ảnh
+                        </label>
+                        <input type="file" id="imageInput" asp-for="ImageUrl" class="form-control"
+                               accept="image/*" onchange="previewImage(this)" />
+                    </div>
+                    <img id="preview" class="image-preview" alt="Preview" />
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Thêm Sản Phẩm
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Quay Lại
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

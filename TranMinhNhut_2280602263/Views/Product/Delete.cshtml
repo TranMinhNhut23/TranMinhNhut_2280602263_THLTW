@@ -1,0 +1,120 @@
+﻿@model TranMinhNhut_2280602263.Models.Product
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+}
+
+<div class="delete-container">
+    <div class="delete-card">
+        <div class="warning-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h2>Xác nhận xóa sản phẩm</h2>
+        <p class="warning-text">
+            Bạn có chắc chắn muốn xóa sản phẩm <strong>"@Model.Name"</strong>?<br />
+            Hành động này không thể hoàn tác.
+        </p>
+
+        <div class="product-preview">
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="product-image" />
+            <div class="product-info">
+                <h4>@Model.Name</h4>
+                <p class="price">@Model.Price.ToString("#,##0") VND</p>
+                <p class="category">@(Model.Category?.Name ?? "Không có danh mục")</p>
+            </div>
+        </div>
+
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="button-group">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Xóa sản phẩm
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x"></i> Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .delete-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+    }
+
+    .delete-card {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .warning-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+
+    .warning-text {
+        color: #6c757d;
+        margin: 20px 0;
+        line-height: 1.6;
+    }
+
+    .product-preview {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 30px 0;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .product-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .product-info {
+        text-align: left;
+    }
+
+        .product-info h4 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .product-info .price {
+            color: #dc3545;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .product-info .category {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+</style>

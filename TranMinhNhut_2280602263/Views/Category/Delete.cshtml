@@ -1,0 +1,38 @@
+﻿@model TranMinhNhut_2280602263.Models.Category
+
+<div class="container py-4">
+    <div class="card shadow-sm border-danger">
+        <div class="card-body text-center">
+            <div class="text-danger mb-4">
+                <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+            </div>
+
+            <h2 class="card-title mb-4">Xác nhận xóa danh mục</h2>
+
+            <p class="lead mb-4">
+                Bạn có chắc chắn muốn xóa danh mục "<strong>@Model.Name</strong>"?
+            </p>
+
+            @if (Model.Products?.Any() == true)
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    Cảnh báo: Danh mục này đang chứa @Model.Products.Count sản phẩm.
+                    Việc xóa danh mục sẽ ảnh hưởng đến các sản phẩm này.
+                </div>
+            }
+
+            <form asp-action="DeleteConfirmed" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Xóa danh mục
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-2"></i>Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

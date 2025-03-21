@@ -1,0 +1,139 @@
+﻿@model IEnumerable<TranMinhNhut_2280602263.Models.Product>
+@{
+    ViewData["Title"] = "Home Page";
+    int numOfQuantity = 1;
+}
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            @foreach (var item in Model)
+            {
+                <div class="col mb-5">
+                    <div class="card h-100 shadow-sm border-0">
+                        <!-- Product image-->
+                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name"
+                             style="height: 300px; object-fit: cover;">
+
+                        <!-- Product details-->
+                        <div class="card-body p-4 text-center">
+                            <!-- Product name-->
+                            <h5 class="fw-bolder">@item.Name</h5>
+                            <!-- Product reviews-->
+                            <div class="d-flex justify-content-center small text-warning mb-2">
+                                <div class="bi-star-fill"></div>
+                                <div class="bi-star-fill"></div>
+                                <div class="bi-star-fill"></div>
+                                <div class="bi-star-fill"></div>
+                                <div class="bi-star-fill"></div>
+                            </div>
+                            <!-- Product price-->
+                            <span class="text-muted mb-3">@item.Price.ToString("#,##0") VND</span>
+                        </div>
+
+                        <!-- Product actions-->
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent text-center">
+                            <div class="btn-group d-flex">
+                                <a asp-controller="ShoppingCart"
+                                   asp-action="AddToCart"
+                                   asp-route-productId="@item.Id"
+                                   asp-route-quantity="@numOfQuantity"
+                                   class="btn btn-outline-dark mt-auto flex-fill">
+                                    <i class="bi-cart-fill me-1"></i>
+                                    Add to Cart
+                                </a>
+                                <button type="button"
+                                        class="btn btn-outline-primary mt-auto flex-fill"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#productModal-@item.Id">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details Modal -->
+                <div class="modal fade" id="productModal-@item.Id" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Chi tiết sản phẩm</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <img src="@item.ImageUrl" class="img-fluid rounded" alt="@item.Name">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4>@item.Name</h4>
+                                        <div class="d-flex small text-warning mb-2">
+                                            <div class="bi-star-fill"></div>
+                                            <div class="bi-star-fill"></div>
+                                            <div class="bi-star-fill"></div>
+                                            <div class="bi-star-fill"></div>
+                                            <div class="bi-star-fill"></div>
+                                        </div>
+                                        <p class="text-muted fs-5">@item.Price.ToString("#,##0") VND</p>
+                                        <p>@item.Description</p>
+                                        @if (item.Category != null)
+                                        {
+                                            <p><strong>Danh mục:</strong> @item.Category.Name</p>
+                                        }
+                                        <div class="d-flex align-items-center mt-3">
+                                            <div class="input-group me-3" style="width: 130px;">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity('@item.Id')">-</button>
+                                                <input type="number" class="form-control text-center" id="quantity-@item.Id" value="1" min="1">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity('@item.Id')">+</button>
+                                            </div>
+                                            <a asp-controller="ShoppingCart"
+                                               asp-action="AddToCart"
+                                               asp-route-productId="@item.Id"
+                                               asp-route-quantity="1"
+                                               class="btn btn-primary"
+                                               onclick="return updateQuantityBeforeAdd(this, '@item.Id')">
+                                                <i class="bi-cart-fill me-1"></i>
+                                                Thêm vào giỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Auto dismiss alerts after 3 seconds
+        setTimeout(function () {
+            $('.alert').alert('close');
+        }, 3000);
+
+        function incrementQuantity(productId) {
+            var input = document.getElementById('quantity-' + productId);
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decrementQuantity(productId) {
+            var input = document.getElementById('quantity-' + productId);
+            var value = parseInt(input.value);
+            if (value > 1) {
+                input.value = value - 1;
+            }
+        }
+
+        function updateQuantityBeforeAdd(link, productId) {
+            var quantity = document.getElementById('quantity-' + productId).value;
+            var href = link.href.replace(/quantity=\d+/, 'quantity=' + quantity);
+            link.href = href;
+            return true;
+        }
+    </script>
+}
