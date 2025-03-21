@@ -20,13 +20,19 @@ public class ShoppingCartController : Controller
         _userManager = userManager;
         _context = context;
     }
-    [HttpGet] // Change to HttpGet since we're using a link
+    [HttpGet]
     public async Task<IActionResult> AddToCart(int productId, int quantity)
     {
         var product = await _productRepository.GetByIdAsync(productId);
-        if (product == null)
+        if (product == null || product.Quantity == 0)
         {
             return NotFound();
+        }
+
+        if (quantity > product.Quantity)
+        {
+            TempData["Error"] = "Số lượng sản phẩm trong giỏ hàng không được lớn hơn số lượng sản phẩm trong kho.";
+            return RedirectToAction("Index");
         }
 
         var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
@@ -36,7 +42,7 @@ public class ShoppingCartController : Controller
             Name = product.Name,
             Price = product.Price,
             Quantity = quantity,
-            ImageUrl = product.ImageUrl  // Add this line
+            ImageUrl = product.ImageUrl
         });
 
         HttpContext.Session.SetObjectAsJson("Cart", cart);
@@ -44,14 +50,12 @@ public class ShoppingCartController : Controller
         return Redirect(Request.Headers["Referer"].ToString() ?? "/");
     }
 
+
     public IActionResult Index()
     {
-        var cart =
-       HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new
-       ShoppingCart();
+        var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
         return View(cart);
     }
-    // Các actions khác...
     private async Task<Product> GetProductFromDatabase(int productId)
     {
         // Truy vấn cơ sở dữ liệu để lấy thông tin sản phẩm
@@ -79,11 +83,22 @@ public class ShoppingCartController : Controller
         return Json(count);
     }
     [HttpPost]
-    public IActionResult UpdateQuantity(int productId, int quantity)
+    public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
     {
         var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
         if (cart != null)
         {
+            var product = await _productRepository.GetByIdAsync(productId);
+            if (product == null || quantity > product.Quantity)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số lượng vượt quá số lượng trong kho",
+                    availableQuantity = product?.Quantity ?? 0
+                });
+            }
+
             var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
             if (item != null)
             {
@@ -93,6 +108,7 @@ public class ShoppingCartController : Controller
         }
         return Json(new { success = true });
     }
+
     [HttpGet]
     public async Task<IActionResult> Checkout()
     {
@@ -139,6 +155,16 @@ public class ShoppingCartController : Controller
             return RedirectToAction("Index");
         }
 
+        foreach (var item in cart.Items)
+        {
+            var product = await _productRepository.GetByIdAsync(item.ProductId);
+            if (product == null || item.Quantity > product.Quantity)
+            {
+                TempData["Error"] = "Số lượng sản phẩm trong giỏ hàng không được lớn hơn số lượng sản phẩm trong kho.";
+                return RedirectToAction("Index");
+            }
+        }
+
         // Initialize required properties before validation
         order.UserId = user.Id;
         order.ApplicationUser = user;
@@ -155,7 +181,7 @@ public class ShoppingCartController : Controller
             ProductId = item.ProductId,
             Quantity = item.Quantity,
             Price = item.Price,
-            Product = new Product { Id = item.ProductId },
+            Product = _context.Products.Find(item.ProductId),
             Order = order
         }).ToList();
 
@@ -167,16 +193,34 @@ public class ShoppingCartController : Controller
         return RedirectToAction("OrderCompleted", new { orderId = order.Id });
     }
 
+
     public IActionResult OrderCompleted(int orderId)
     {
         return View(orderId);
     }
+    [HttpPost]
     [HttpPost]
     public IActionResult ClearCart()
     {
         HttpContext.Session.Remove("Cart");
         TempData["Success"] = "Giỏ hàng đã được xóa!";
         return RedirectToAction("Index");
+    }
+    public async Task<IActionResult> MyOrders()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var orders = await _context.Orders
+            .Include(o => o.OrderDetails)
+            .ThenInclude(od => od.Product)
+            .Where(o => o.UserId == user.Id)
+            .ToListAsync();
+
+        return View(orders);
     }
 
 }

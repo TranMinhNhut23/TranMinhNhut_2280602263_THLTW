@@ -5,7 +5,7 @@
 namespace TranMinhNhut_2280602263.Migrations
 {
     /// <inheritdoc />
-    public partial class RemoveOrderTable : Migration
+    public partial class initialOrder : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

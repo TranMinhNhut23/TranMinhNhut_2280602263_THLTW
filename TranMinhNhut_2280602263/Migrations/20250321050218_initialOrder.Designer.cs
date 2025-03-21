@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace TranMinhNhut_2280602263.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250321033254_RemoveOrderTable")]
-    partial class RemoveOrderTable
+    [Migration("20250321050218_initialOrder")]
+    partial class initialOrder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -102,6 +102,7 @@
                         </a>
 
                         <!-- User Account -->
+                        <!-- User Account -->
                         @if (User.Identity.IsAuthenticated)
                         {
                             <div class="dropdown">
@@ -119,7 +120,7 @@
                                         <li><hr class="dropdown-divider"></li>
                                     }
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Order" asp-action="MyOrders">
+                                        <a class="dropdown-item" asp-controller="ShoppingCart" asp-action="MyOrders">
                                             <i class="bi bi-bag me-2"></i>Đơn hàng
                                         </a>
                                     </li>
@@ -147,6 +148,7 @@
                                 </a>
                             </div>
                         }
+
                     </div>
                 </div>
             </div>
@@ -197,5 +199,6 @@
             updateCartCount();
         });
     </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </body>
 </html>

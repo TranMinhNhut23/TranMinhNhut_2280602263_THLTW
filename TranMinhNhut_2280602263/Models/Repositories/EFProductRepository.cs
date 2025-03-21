@@ -43,5 +43,10 @@ namespace TranMinhNhut_2280602263.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public Task<IEnumerable<Product>> GetAvailableProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

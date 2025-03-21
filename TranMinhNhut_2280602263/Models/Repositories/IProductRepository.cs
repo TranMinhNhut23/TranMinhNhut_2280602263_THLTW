@@ -9,6 +9,8 @@ namespace TranMinhNhut_2280602263.Repositories
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Product>> GetAvailableProductsAsync(); // New method
     }
+
 
 }
