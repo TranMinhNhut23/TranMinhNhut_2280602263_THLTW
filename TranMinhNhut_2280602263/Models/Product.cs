@@ -12,7 +12,7 @@ namespace TranMinhNhut_2280602263.Models
         public List<ProductImage>? Images { get; set; }
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
-        public int Quantity { get; set; } // Add this line to include the Quantity property
+        public int Quantity { get; set; }
+        public List<OrderDetail>? OrderDetails { get; set; }
     }
-
 }

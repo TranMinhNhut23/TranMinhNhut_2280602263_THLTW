@@ -85,6 +85,67 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightning-charge me-2"></i>Thao tác nhanh
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="/Admin/Product/Create" class="quick-action-card">
+                                <div class="quick-action-icon bg-primary">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <div class="quick-action-info">
+                                    <h6>Thêm sản phẩm</h6>
+                                    <span>Tạo sản phẩm mới</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/Admin/Category/Create" class="quick-action-card">
+                                <div class="quick-action-icon bg-success">
+                                    <i class="bi bi-folder-plus"></i>
+                                </div>
+                                <div class="quick-action-info">
+                                    <h6>Thêm danh mục</h6>
+                                    <span>Tạo danh mục mới</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/Admin/Order" class="quick-action-card">
+                                <div class="quick-action-icon bg-info">
+                                    <i class="bi bi-cart"></i>
+                                </div>
+                                <div class="quick-action-info">
+                                    <h6>Xem đơn hàng</h6>
+                                    <span>Quản lý đơn hàng</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/Admin/Report" class="quick-action-card">
+                                <div class="quick-action-icon bg-warning">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="quick-action-info">
+                                    <h6>Báo cáo</h6>
+                                    <span>Xem báo cáo doanh thu</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Recent Orders -->
         <div class="col-xl-8 mb-4">
@@ -98,7 +159,7 @@
                             <button class="btn btn-sm btn-light me-2" title="Làm mới">
                                 <i class="bi bi-arrow-clockwise"></i>
                             </button>
-                            <a href="#" class="btn btn-sm btn-primary">Xem tất cả</a>
+                            <a href="/Admin/Order" class="btn btn-sm btn-primary">Xem tất cả</a>
                         </div>
                     </div>
                 </div>
@@ -111,7 +172,6 @@
                                     <th>Khách hàng</th>
                                     <th>Tổng tiền</th>
                                     <th>Ngày đặt</th>
-                                    <th>Trạng thái</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -127,7 +187,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar me-2">
                                                     <div class="avatar-initial rounded-circle bg-light">
-                                                        @(order.ApplicationUser?.FullName.Substring(0, 1))
+                                                        @(order.ApplicationUser?.FullName?.Substring(0, 1) ?? "?")
                                                     </div>
                                                 </div>
                                                 <div>
@@ -141,28 +201,23 @@
                                         </td>
                                         <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
                                         <td>
-                                            <span class="badge bg-soft-success text-success">
-                                                <i class="bi bi-check-circle me-1"></i>Mới
-                                            </span>
-                                        </td>
-                                        <td>
                                             <div class="dropdown">
                                                 <button class="btn btn-sm btn-icon btn-light" data-bs-toggle="dropdown">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
                                                     <li>
-                                                        <a class="dropdown-item" href="#">
+                                                        <a class="dropdown-item" href="/Admin/Order/Details/@order.Id">
                                                             <i class="bi bi-eye me-2"></i>Xem chi tiết
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item" href="#">
-                                                            <i class="bi bi-truck me-2"></i>Cập nhật trạng thái
+                                                        <a class="dropdown-item" href="/Admin/Order/Edit/@order.Id">
+                                                            <i class="bi bi-pencil me-2"></i>Chỉnh sửa
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item text-danger" href="#">
+                                                        <a class="dropdown-item text-danger" href="#" onclick="cancelOrder(@order.Id)">
                                                             <i class="bi bi-x-circle me-2"></i>Hủy đơn
                                                         </a>
                                                     </li>
@@ -220,6 +275,215 @@
             </div>
         </div>
     </div>
+
+    <!-- Revenue Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-graph-up-arrow me-2"></i>Doanh thu theo tháng
+                        </h5>
+                        <div class="card-actions">
+                            <select class="form-select form-select-sm" style="width: auto;">
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-grid me-2"></i>Danh mục sản phẩm
+                        </h5>
+                        <div class="card-actions">
+                            <a href="/Admin/Category/Create" class="btn btn-sm btn-success">
+                                <i class="bi bi-plus-circle me-1"></i>Thêm danh mục
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var category in ViewBag.Categories ?? new List<Category>())
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="category-card">
+                                    <div class="category-icon">
+                                        <i class="bi bi-folder"></i>
+                                    </div>
+                                    <div class="category-info">
+                                        <h6>@category.Name</h6>
+                                        <span>@category.Products?.Count sản phẩm</span>
+                                    </div>
+                                    <div class="category-actions">
+                                        <a href="/Admin/Category/Edit/@category.Id" class="btn btn-sm btn-light">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="/Admin/Category/Delete/@category.Id" class="btn btn-sm btn-light text-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Section -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card custom-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            <i class="bi bi-people-fill me-2"></i>Quản lý người dùng
+                        </h5>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-light me-2" title="Làm mới">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                            <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="bi bi-person-plus me-1"></i>Thêm người dùng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover custom-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Vai trò</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in ViewBag.Users ?? new List<ApplicationUser>())
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar me-2">
+                                                    <div class="avatar-initial rounded-circle bg-primary text-white">
+                                                        @(string.IsNullOrEmpty(user.FullName) ? "?" : user.FullName.Substring(0, 1).ToUpper())
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <span class="fw-medium">@user.FullName</span>
+                                                    <small class="d-block text-muted">@user.Email</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@user.Email</td>
+                                        <td>@user.PhoneNumber</td>
+                                        <td>
+                                            @foreach (var role in ViewBag.UserRoles[user.Id] ?? new List<string>())
+                                            {
+                                                <span class="badge bg-soft-primary text-primary me-1">@role</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-icon btn-light" data-bs-toggle="dropdown">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="editUser('@user.Id')">
+                                                            <i class="bi bi-pencil me-2"></i>Chỉnh sửa
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="changePassword('@user.Id')">
+                                                            <i class="bi bi-key me-2"></i>Đổi mật khẩu
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#" onclick="manageRoles('@user.Id')">
+                                                            <i class="bi bi-person-gear me-2"></i>Phân quyền
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item text-danger" href="#" onclick="deleteUser('@user.Id')">
+                                                            <i class="bi bi-trash me-2"></i>Xóa tài khoản
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm người dùng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" name="fullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="tel" class="form-control" name="phoneNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <select class="form-select" name="role" required>
+                            <option value="User">Người dùng</option>
+                            <option value="Admin">Quản trị viên</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddUser()">Thêm người dùng</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -258,10 +522,10 @@
         color: white;
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
     .bg-gradient-primary {
         background: linear-gradient(45deg, #4e73df, #224abe);
@@ -348,17 +612,17 @@
         margin: 0;
     }
 
-    .custom-table th {
-        font-weight: 600;
-        color: #2c3e50;
-        border-bottom: 2px solid #e9ecef;
-        padding: 1rem;
-    }
+        .custom-table th {
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding: 1rem;
+        }
 
-    .custom-table td {
-        padding: 1rem;
-        vertical-align: middle;
-    }
+        .custom-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
 
     .order-id {
         font-weight: 600;
@@ -402,9 +666,9 @@
         transition: all 0.2s ease;
     }
 
-    .product-item:hover {
-        background: #e9ecef;
-    }
+        .product-item:hover {
+            background: #e9ecef;
+        }
 
     .product-info {
         display: flex;
@@ -466,10 +730,10 @@
         border-color: #e9ecef;
     }
 
-    .btn-light:hover {
-        background-color: #e9ecef;
-        border-color: #dde2e6;
-    }
+        .btn-light:hover {
+            background-color: #e9ecef;
+            border-color: #dde2e6;
+        }
 
     .btn-icon {
         padding: 0.25rem 0.5rem;
@@ -488,19 +752,20 @@
         color: #2c3e50;
     }
 
-    .dropdown-item:hover {
-        background-color: #f8f9fa;
-    }
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
 
-    .dropdown-item.text-danger:hover {
-        background-color: #fee2e2;
-    }
+        .dropdown-item.text-danger:hover {
+            background-color: #fee2e2;
+        }
 
     /* Animation Styles */
     @@keyframes rotating {
         from {
             transform: rotate(0deg);
         }
+
         to {
             transform: rotate(360deg);
         }
@@ -509,8 +774,136 @@
     .rotating {
         animation: rotating 1s linear infinite;
     }
+
+    /* Additional styles for user management */
+    .bg-soft-primary {
+        background-color: rgba(78, 115, 223, 0.1) !important;
+    }
+
+    .text-primary {
+        color: #4e73df !important;
+    }
+
+    .bg-soft-warning {
+        background-color: rgba(246, 194, 62, 0.1) !important;
+    }
+
+    .text-warning {
+        color: #f6c23e !important;
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 1rem;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(0,0,0,.05);
+        background-color: #f8f9fa;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .modal-footer {
+        border-top: 1px solid rgba(0,0,0,.05);
+        background-color: #f8f9fa;
+        border-radius: 0 0 1rem 1rem;
+    }
+
+    /* Quick Actions */
+    .quick-action-card {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .quick-action-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .quick-action-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-right: 1rem;
+    }
+
+    .quick-action-info h6 {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .quick-action-info span {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    /* Category Cards */
+    .category-card {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .category-card:hover {
+        background: #e9ecef;
+    }
+
+    .category-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.5rem;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #4e73df;
+        margin-right: 1rem;
+    }
+
+    .category-info {
+        flex: 1;
+    }
+
+    .category-info h6 {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .category-info span {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    .category-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Chart Styles */
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Thêm hiệu ứng loading khi nhấn nút làm mới
     document.addEventListener('DOMContentLoaded', function() {
@@ -526,4 +919,297 @@
             });
         });
     });
+
+    // User management functions
+    async function editUser(userId) {
+        try {
+            const response = await fetch(`/api/admin/userapi/${userId}`);
+            const user = await response.json();
+
+            // Populate form with user data
+            const form = document.createElement('form');
+            form.innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" class="form-control" name="fullName" value="${user.fullName}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="${user.email}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" class="form-control" name="phoneNumber" value="${user.phoneNumber}">
+                </div>
+            `;
+
+            const result = await Swal.fire({
+                title: 'Chỉnh sửa thông tin người dùng',
+                html: form,
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+                preConfirm: () => {
+                    return {
+                        fullName: form.querySelector('[name="fullName"]').value,
+                        email: form.querySelector('[name="email"]').value,
+                        phoneNumber: form.querySelector('[name="phoneNumber"]').value
+                    };
+                }
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/admin/userapi/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(result.value)
+                });
+
+                if (response.ok) {
+                    Swal.fire('Thành công', 'Cập nhật thông tin thành công', 'success');
+                    location.reload();
+                } else {
+                    throw new Error('Cập nhật thất bại');
+                }
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
+
+    async function changePassword(userId) {
+        try {
+            const form = document.createElement('form');
+            form.innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu hiện tại</label>
+                    <input type="password" class="form-control" name="currentPassword" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" class="form-control" name="newPassword" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                    <input type="password" class="form-control" name="confirmPassword" required>
+                </div>
+            `;
+
+            const result = await Swal.fire({
+                title: 'Đổi mật khẩu',
+                html: form,
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+                preConfirm: () => {
+                    const newPassword = form.querySelector('[name="newPassword"]').value;
+                    const confirmPassword = form.querySelector('[name="confirmPassword"]').value;
+
+                    if (newPassword !== confirmPassword) {
+                        Swal.showValidationMessage('Mật khẩu xác nhận không khớp');
+                        return false;
+                    }
+
+                    return {
+                        currentPassword: form.querySelector('[name="currentPassword"]').value,
+                        newPassword: newPassword
+                    };
+                }
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/admin/userapi/${userId}/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(result.value)
+                });
+
+                if (response.ok) {
+                    Swal.fire('Thành công', 'Đổi mật khẩu thành công', 'success');
+                } else {
+                    throw new Error('Đổi mật khẩu thất bại');
+                }
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
+
+    async function manageRoles(userId) {
+        try {
+            const response = await fetch(`/api/admin/userapi/${userId}/roles`);
+            const currentRoles = await response.json();
+
+            const form = document.createElement('form');
+            form.innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Vai trò</label>
+                    <select class="form-select" name="roles" multiple required>
+                        <option value="Admin" ${currentRoles.includes('Admin') ? 'selected' : ''}>Quản trị viên</option>
+                        <option value="User" ${currentRoles.includes('User') ? 'selected' : ''}>Người dùng</option>
+                    </select>
+                </div>
+            `;
+
+            const result = await Swal.fire({
+                title: 'Phân quyền người dùng',
+                html: form,
+                showCancelButton: true,
+                confirmButtonText: 'Cập nhật',
+                cancelButtonText: 'Hủy',
+                preConfirm: () => {
+                    return {
+                        roles: Array.from(form.querySelector('[name="roles"]').selectedOptions).map(option => option.value)
+                    };
+                }
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/admin/userapi/${userId}/roles`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(result.value)
+                });
+
+                if (response.ok) {
+                    Swal.fire('Thành công', 'Cập nhật vai trò thành công', 'success');
+                    location.reload();
+                } else {
+                    throw new Error('Cập nhật vai trò thất bại');
+                }
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
+
+    async function deleteUser(userId) {
+        try {
+            const result = await Swal.fire({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc chắn muốn xóa người dùng này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/admin/userapi/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    Swal.fire('Thành công', 'Xóa người dùng thành công', 'success');
+                    location.reload();
+                } else {
+                    throw new Error('Xóa người dùng thất bại');
+                }
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
+
+    async function submitAddUser() {
+        try {
+            const form = document.getElementById('addUserForm');
+            const formData = {
+                email: form.querySelector('[name="email"]').value,
+                password: form.querySelector('[name="password"]').value,
+                fullName: form.querySelector('[name="fullName"]').value,
+                phoneNumber: form.querySelector('[name="phoneNumber"]').value,
+                role: form.querySelector('[name="role"]').value
+            };
+
+            const response = await fetch('/api/admin/userapi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                Swal.fire('Thành công', 'Thêm người dùng thành công', 'success');
+                $('#addUserModal').modal('hide');
+                location.reload();
+            } else {
+                throw new Error('Thêm người dùng thất bại');
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
+
+    // Revenue Chart
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+                label: 'Doanh thu (triệu VND)',
+                data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 40, 38, 45],
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + 'M';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Cancel Order Function
+    async function cancelOrder(orderId) {
+        try {
+            const result = await Swal.fire({
+                title: 'Xác nhận hủy đơn',
+                text: 'Bạn có chắc chắn muốn hủy đơn hàng này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hủy đơn',
+                cancelButtonText: 'Không'
+            });
+
+            if (result.isConfirmed) {
+                const response = await fetch(`/api/admin/orderapi/${orderId}/cancel`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    Swal.fire('Thành công', 'Đã hủy đơn hàng', 'success');
+                    location.reload();
+                } else {
+                    throw new Error('Không thể hủy đơn hàng');
+                }
+            }
+        } catch (error) {
+            Swal.fire('Lỗi', error.message, 'error');
+        }
+    }
 </script>

@@ -4,6 +4,15 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace TranMinhNhut_2280602263.Models
 {
+    public enum OrderStatus
+    {
+        Pending,
+        Processing,
+        Shipped,
+        Delivered,
+        Cancelled
+    }
+
     public class Order
     {
         public int Id { get; set; }
@@ -31,6 +40,9 @@ namespace TranMinhNhut_2280602263.Models
         public required string PhoneNumber { get; set; }
 
         public string? Notes { get; set; }
+
+        [Required]
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         [ForeignKey(nameof(UserId))]
         [ValidateNever]
