@@ -4,27 +4,6 @@
     ViewData["Title"] = "Quản lý sản phẩm";
 }
 
-<h2>Products</h2>
-
-<div class="row">
-    @foreach (var product in Model)
-    {
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
-                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
-                <div class="card-body">
-                    <h5 class="card-title">@product.Name</h5>
-                    <p class="card-text">@product.Description</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">@product.Price.ToString("C")</span>
-                        <a href="@Url.Action("AddToCart", "ShoppingCart", new { productId = product.Id, quantity = 1 })" class="btn btn-sm btn-primary">Add to cart</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
-
 <div class="products-container">
     <div class="page-header">
         <h2><i class="bi bi-box-seam me-2"></i>Quản lý sản phẩm</h2>
@@ -80,6 +59,7 @@
                         @(!string.IsNullOrWhiteSpace(product.Category?.Name)
                             ? product.Category.Name : "Không có danh mục")
                     </p>
+                    <p class="description">@product.Description</p>
                 </div>
                 <div class="product-actions">
                     <a asp-action="Display" asp-route-id="@product.Id"
@@ -187,6 +167,16 @@
         color: #7f8c8d;
         font-size: 0.9rem;
         margin: 0;
+    }
+
+    .description {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .product-actions {
