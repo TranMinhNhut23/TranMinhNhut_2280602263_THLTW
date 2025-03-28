@@ -1,4 +1,4 @@
-@using TranMinhNhut_2280602263.Models
+﻿@using TranMinhNhut_2280602263.Models
 @{
     ViewData["Title"] = "Trang quản trị";
     Layout = "_AdminLayout";
@@ -97,7 +97,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <a href="/Admin/Product/Create" class="quick-action-card">
+                            <a href="Product/add" class="quick-action-card">
                                 <div class="quick-action-icon bg-primary">
                                     <i class="bi bi-plus-circle"></i>
                                 </div>
@@ -108,7 +108,7 @@
                             </a>
                         </div>
                         <div class="col-md-3">
-                            <a href="/Admin/Category/Create" class="quick-action-card">
+                            <a href="Category/add" class="quick-action-card">
                                 <div class="quick-action-icon bg-success">
                                     <i class="bi bi-folder-plus"></i>
                                 </div>
@@ -300,52 +300,6 @@
         </div>
     </div>
 
-    <!-- Categories Overview -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card custom-card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">
-                            <i class="bi bi-grid me-2"></i>Danh mục sản phẩm
-                        </h5>
-                        <div class="card-actions">
-                            <a href="/Admin/Category/Create" class="btn btn-sm btn-success">
-                                <i class="bi bi-plus-circle me-1"></i>Thêm danh mục
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @foreach (var category in ViewBag.Categories ?? new List<Category>())
-                        {
-                            <div class="col-md-4 mb-3">
-                                <div class="category-card">
-                                    <div class="category-icon">
-                                        <i class="bi bi-folder"></i>
-                                    </div>
-                                    <div class="category-info">
-                                        <h6>@category.Name</h6>
-                                        <span>@category.Products?.Count sản phẩm</span>
-                                    </div>
-                                    <div class="category-actions">
-                                        <a href="/Admin/Category/Edit/@category.Id" class="btn btn-sm btn-light">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="/Admin/Category/Delete/@category.Id" class="btn btn-sm btn-light text-danger">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- User Management Section -->
     <div class="row">
         <div class="col-12 mb-4">
@@ -467,7 +421,12 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Mật khẩu</label>
-                        <input type="password" class="form-control" name="password" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Vai trò</label>
@@ -486,7 +445,9 @@
     </div>
 </div>
 
+
 <style>
+    <style >
     .dashboard-container {
         padding: 1.5rem;
         background-color: #f8f9fa;
@@ -761,14 +722,17 @@
         }
 
     /* Animation Styles */
-    @@keyframes rotating {
-        from {
-            transform: rotate(0deg);
-        }
+        @@keyframes rotating {
+        from
 
-        to {
-            transform: rotate(360deg);
-        }
+    {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
     }
 
     .rotating {
@@ -821,10 +785,10 @@
         transition: all 0.2s ease;
     }
 
-    .quick-action-card:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-    }
+        .quick-action-card:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
 
     .quick-action-icon {
         width: 48px;
@@ -859,9 +823,9 @@
         transition: all 0.2s ease;
     }
 
-    .category-card:hover {
-        background: #e9ecef;
-    }
+        .category-card:hover {
+            background: #e9ecef;
+        }
 
     .category-icon {
         width: 40px;
@@ -880,16 +844,16 @@
         flex: 1;
     }
 
-    .category-info h6 {
-        margin: 0;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
+        .category-info h6 {
+            margin: 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
 
-    .category-info span {
-        font-size: 0.75rem;
-        color: #6c757d;
-    }
+        .category-info span {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
 
     .category-actions {
         display: flex;
@@ -901,6 +865,40 @@
         position: relative;
         height: 300px;
     }
+
+    /* Validation Styles */
+    .is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + .75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(.375em + .1875rem) center;
+        background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    }
+
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: .25rem;
+        font-size: .875em;
+        color: #dc3545;
+    }
+
+    .is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    .input-group .is-invalid {
+        z-index: 3;
+    }
+
+    .input-group .btn-outline-secondary {
+        border-color: #ced4da;
+    }
+
+        .input-group .btn-outline-secondary:hover {
+            background-color: #e9ecef;
+        }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1084,7 +1082,8 @@
                     throw new Error('Cập nhật vai trò thất bại');
                 }
             }
-        } catch (error) {
+
+        } catch(error) {
             Swal.fire('Lỗi', error.message, 'error');
         }
     }
@@ -1118,35 +1117,35 @@
     }
 
     async function submitAddUser() {
-        try {
-            const form = document.getElementById('addUserForm');
-            const formData = {
-                email: form.querySelector('[name="email"]').value,
-                password: form.querySelector('[name="password"]').value,
-                fullName: form.querySelector('[name="fullName"]').value,
-                phoneNumber: form.querySelector('[name="phoneNumber"]').value,
-                role: form.querySelector('[name="role"]').value
-            };
+         try {
+             const form = document.getElementById('addUserForm');
+             const formData = {
+                 email: form.querySelector('[name="email"]').value,
+                 password: form.querySelector('[name="password"]').value,
+                 fullName: form.querySelector('[name="fullName"]').value,
+                 phoneNumber: form.querySelector('[name="phoneNumber"]').value,
+                 role: form.querySelector('[name="role"]').value
+             };
 
-            const response = await fetch('/api/admin/userapi', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+             const response = await fetch('/api/admin/userapi', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json'
+                 },
+                 body: JSON.stringify(formData)
+             });
 
-            if (response.ok) {
-                Swal.fire('Thành công', 'Thêm người dùng thành công', 'success');
-                $('#addUserModal').modal('hide');
-                location.reload();
-            } else {
-                throw new Error('Thêm người dùng thất bại');
-            }
-        } catch (error) {
-            Swal.fire('Lỗi', error.message, 'error');
-        }
-    }
+             if (response.ok) {
+                 Swal.fire('Thành công', 'Thêm người dùng thành công', 'success');
+                 $('#addUserModal').modal('hide');
+                 location.reload();
+             } else {
+                 throw new Error('Thêm người dùng thất bại');
+             }
+         } catch (error) {
+             Swal.fire('Lỗi', error.message, 'error');
+         }
+     }
 
     // Revenue Chart
     const ctx = document.getElementById('revenueChart').getContext('2d');

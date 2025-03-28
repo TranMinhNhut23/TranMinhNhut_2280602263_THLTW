@@ -1,0 +1,164 @@
+﻿@model IEnumerable<TranMinhNhut_2280602263.Models.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .order-id {
+        font-weight: 600;
+        color: #4e73df;
+    }
+
+    .rotating {
+        animation: rotating 1s linear infinite;
+    }
+
+    @@keyframes rotating {
+        from
+
+    {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card custom-card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">
+                    <i class="bi bi-cart-check me-2"></i>Quản lý đơn hàng
+                </h5>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-light" id="refreshBtn" title="Làm mới">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover custom-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Địa chỉ giao hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="order-id">#@order.Id</span>
+                                    <small class="d-block text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-2">
+                                            <div class="avatar-initial rounded-circle bg-light">
+                                                @(order.ApplicationUser?.FullName?.Substring(0, 1) ?? "?")
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="fw-medium">@order.ApplicationUser?.FullName</span>
+                                            <small class="d-block text-muted">@order.ApplicationUser?.Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@order.ShippingAddress</td>
+                                <td>@order.PhoneNumber</td>
+                                <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="text-success fw-bold">@order.TotalPrice.ToString("#,##0") ₫</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="toggleOrderDetails('@order.Id')">
+                                        <i class="bi bi-eye me-2"></i>Chi tiết
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="orderDetails_@order.Id" style="display: none;">
+                                <td colspan="7">
+                                    <div class="p-3 bg-light rounded">
+                                        <div class="mb-4">
+                                            <h6 class="mb-3">Danh sách sản phẩm</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered bg-white mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Sản phẩm</th>
+                                                            <th>Số lượng</th>
+                                                            <th>Đơn giá</th>
+                                                            <th>Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var detail in order.OrderDetails)
+                                                        {
+                                                            <tr>
+                                                                <td>@detail.Product.Name</td>
+                                                                <td>@detail.Quantity</td>
+                                                                <td>@detail.Price.ToString("#,##0") ₫</td>
+                                                                <td>@((detail.Quantity * detail.Price).ToString("#,##0")) ₫</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                                            <td><strong>@order.TotalPrice.ToString("#,##0") ₫</strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(order.Notes))
+                                        {
+                                            <div>
+                                                <h6 class="mb-2">Ghi chú</h6>
+                                                <p class="mb-0">@order.Notes</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Refresh button animation
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            const icon = this.querySelector('.bi-arrow-clockwise');
+            icon.classList.add('rotating');
+            setTimeout(() => {
+                icon.classList.remove('rotating');
+                location.reload();
+            }, 1000);
+        });
+    });
+
+    // Toggle order details
+    function toggleOrderDetails(orderId) {
+        const detailsRow = document.getElementById(`orderDetails_${orderId}`);
+        const currentDisplay = detailsRow.style.display;
+        detailsRow.style.display = currentDisplay === 'none' ? 'table-row' : 'none';
+    }
+</script>

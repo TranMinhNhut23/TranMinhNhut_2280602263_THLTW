@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using TranMinhNhut_2280602263.Models;
+using System.Linq;
 
 namespace TranMinhNhut_2280602263.Areas.Admin.Controllers
 {
@@ -21,29 +23,84 @@ namespace TranMinhNhut_2280602263.Areas.Admin.Controllers
             _roleManager = roleManager;
         }
 
-        // API thêm người dùng mới
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model)
         {
-            var user = new ApplicationUser
+            try
             {
-                UserName = model.Email,
-                Email = model.Email,
-                FullName = model.FullName,
-                PhoneNumber = model.PhoneNumber,
-            };
+                // Validate input
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Dữ liệu không hợp lệ", errors = ModelState.Values.SelectMany(v => v.Errors) });
+                }
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, model.Role);
-                return Ok(new { message = "Tạo người dùng thành công" });
+                // Check if email exists
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    return BadRequest(new { message = "Email đã được sử dụng" });
+                }
+
+                // Validate role
+                if (!await _roleManager.RoleExistsAsync(model.Role))
+                {
+                    return BadRequest(new { message = "Vai trò không hợp lệ" });
+                }
+
+                // Create user
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    PhoneNumber = model.PhoneNumber,
+                    EmailConfirmed = true // Tự động xác nhận email
+                };
+
+                // Thêm validation cho mật khẩu
+                var passwordValidator = new PasswordValidator<ApplicationUser>();
+                var passwordValidationResult = await passwordValidator.ValidateAsync(_userManager, null, model.Password);
+                if (!passwordValidationResult.Succeeded)
+                {
+                    return BadRequest(new { message = "Mật khẩu không đáp ứng yêu cầu", errors = passwordValidationResult.Errors });
+                }
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    // Thêm role cho user
+                    var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
+                    if (!roleResult.Succeeded)
+                    {
+                        // Nếu thêm role thất bại, xóa user đã tạo
+                        await _userManager.DeleteAsync(user);
+                        return BadRequest(new { message = "Không thể phân quyền cho người dùng", errors = roleResult.Errors });
+                    }
+
+                    // Trả về thông tin user đã tạo
+                    return Ok(new
+                    {
+                        message = "Tạo người dùng thành công",
+                        user = new
+                        {
+                            id = user.Id,
+                            email = user.Email,
+                            fullName = user.FullName,
+                            phoneNumber = user.PhoneNumber,
+                            role = model.Role
+                        }
+                    });
+                }
+
+                return BadRequest(new { message = "Tạo người dùng thất bại", errors = result.Errors });
             }
-
-            return BadRequest(new { message = "Tạo người dùng thất bại", errors = result.Errors });
+            catch (Exception ex)
+            {
+                // Log error
+                return StatusCode(500, new { message = "Lỗi server", error = ex.Message });
+            }
         }
 
-        // API cập nhật thông tin người dùng
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserModel model)
         {
@@ -111,10 +168,22 @@ namespace TranMinhNhut_2280602263.Areas.Admin.Controllers
 
     public class CreateUserModel
     {
+        [Required(ErrorMessage = "Email là bắt buộc")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
         public string Email { get; set; }
+
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
         public string Password { get; set; }
+
+        [Required(ErrorMessage = "Họ tên là bắt buộc")]
+        [StringLength(100, ErrorMessage = "Họ tên không được vượt quá 100 ký tự")]
         public string FullName { get; set; }
+
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
         public string PhoneNumber { get; set; }
+
+        [Required(ErrorMessage = "Vai trò là bắt buộc")]
         public string Role { get; set; }
     }
 
@@ -135,5 +204,6 @@ namespace TranMinhNhut_2280602263.Areas.Admin.Controllers
     {
         public List<string> Roles { get; set; }
     }
+
 }
 

@@ -1,0 +1,371 @@
+﻿@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .report-container {
+    background: #f8f9fa;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    }
+
+    .report-header {
+    margin-bottom: 2rem;
+    }
+
+    .report-title {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    }
+
+    .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    }
+
+    .stat-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+    transform: translateY(-3px);
+    }
+
+    .stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    }
+
+    .stat-icon.revenue {
+    background: rgba(78, 115, 223, 0.1);
+    color: #4e73df;
+    }
+
+    .stat-icon.orders {
+    background: rgba(28, 200, 138, 0.1);
+    color: #1cc88a;
+    }
+
+    .stat-icon.average {
+    background: rgba(246, 194, 62, 0.1);
+    color: #f6c23e;
+    }
+
+    .stat-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    }
+
+    .chart-container {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+
+    .chart-wrapper {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    margin: 0 auto;
+    }
+
+    .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    }
+
+    .chart-filters {
+    display: flex;
+    gap: 1rem;
+    }
+
+    .filter-select {
+    padding: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    color: #2c3e50;
+    font-size: 0.875rem;
+    }
+
+    .details-table {
+    width: 100%;
+    background: white;
+    border-radius: 1rem;
+    overflow: hidden;
+    }
+
+    .details-table th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    }
+
+    .details-table td {
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    }
+
+    .details-table tbody tr:hover {
+    background: #f8f9fa;
+    }
+
+    .trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    }
+
+    .trend-up {
+    background: rgba(28, 200, 138, 0.1);
+    color: #1cc88a;
+    }
+
+    .trend-down {
+    background: rgba(231, 74, 59, 0.1);
+    color: #e74a3b;
+    }
+</style>
+
+<div class="report-container">
+    <div class="report-header">
+        <h1 class="report-title">
+            <i class="bi bi-graph-up-arrow me-2"></i>Báo cáo doanh thu
+        </h1>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon revenue">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+            <div class="stat-value">
+                @(ViewBag.TotalRevenue != null ? $"{ViewBag.TotalRevenue:#,##0} ₫" : "0 ₫")
+            </div>
+            <div class="stat-label">Tổng doanh thu năm nay</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon orders">
+                    <i class="bi bi-cart-check"></i>
+                </div>
+            </div>
+            <div class="stat-value">
+                @(ViewBag.TotalOrders ?? 0)
+            </div>
+            <div class="stat-label">Tổng số đơn hàng</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon average">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+            <div class="stat-value">
+                @(ViewBag.AverageOrder != null ? $"{ViewBag.AverageOrder:#,##0} ₫" : "0 ₫")
+            </div>
+            <div class="stat-label">Giá trị trung bình/đơn</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2 class="chart-title">Chi tiết doanh thu theo tháng</h2>
+        <div class="table-responsive">
+            <table class="details-table">
+                <thead>
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Số đơn hàng</th>
+                        <th>Tổng doanh thu</th>
+                        <th>Trung bình/đơn</th>
+                        <th>So với tháng trước</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.MonthlyReports != null)
+                    {
+                        foreach (var report in ViewBag.MonthlyReports)
+                        {
+                            if (report != null) // Đảm bảo report không null trước khi truy cập thuộc tính
+                            {
+                                <tr>
+                                    <td>Tháng @report.Month.ToString("D2")/@DateTime.Now.Year</td>
+                                    <td>@report.TotalOrders</td>
+                                    <td>@report.TotalRevenue.ToString("#,##0") ₫</td>
+                                    <td>@report.AverageOrder.ToString("#,##0") ₫</td>
+                                    <td>
+                                        @if (report.ChangeFromPreviousMonth != null)
+                                        {
+                                            <span>@report.ChangeFromPreviousMonth.Value.ToString("0.00")%</span>
+                                            @if (report.ChangeFromPreviousMonth > 0)
+                                            {
+                                                <span class="trend-indicator trend-up">
+                                                    <i class="bi bi-arrow-up"></i>
+                                                    @report.ChangeFromPreviousMonth.Value.ToString("0.##")%
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="trend-indicator trend-down">
+                                                    <i class="bi bi-arrow-down"></i>
+                                                    @report.ChangeFromPreviousMonth.Value.ToString("0.##")%
+                                                </span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">Không có dữ liệu</td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+                label: 'Doanh thu (triệu VND)',
+                data: [65, 75, 62, 85, 72, 90, 88, 95, 92, 100, 98, 105],
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#2c3e50',
+                    bodyColor: '#2c3e50',
+                    borderColor: '#e9ecef',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' triệu VND';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        callback: function(value) {
+                            return value + 'M';
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+
+    // Handle chart type change
+    document.getElementById('chartType').addEventListener('change', function() {
+        const type = this.value;
+        if (type === 'daily') {
+            chart.data.labels = Array.from({length: 30}, (_, i) => `${i + 1}`);
+            chart.data.datasets[0].data = Array.from({length: 30}, () => Math.floor(Math.random() * 50) + 50);
+        } else {
+            chart.data.labels = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+            chart.data.datasets[0].data = [65, 75, 62, 85, 72, 90, 88, 95, 92, 100, 98, 105];
+        }
+        chart.update();
+    });
+</script>
